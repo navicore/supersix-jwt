@@ -1,0 +1,42 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: iot-server-demo-worker
+  name: iot-server-demo-worker
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      run: iot-server-demo-worker
+  template:
+    metadata:
+      labels:
+        run: iot-server-demo-worker
+    spec:
+      containers:
+      - name: iot-server-demo-worker
+        image: navicore/iot-server-demo:0.1.80
+        imagePullPolicy: Always
+        env:
+        - name: CASSANDRA_HOST
+          value: "my-cassandra"
+        - name: HOST_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: AKKA_SEED0
+          value: "akka.tcp://IotServerDemo@iot-server-demo-seed-0.iot-server-demo-seed:2551"
+        - name: AKKA_SEED1
+          value: "akka.tcp://IotServerDemo@iot-server-demo-seed-1.iot-server-demo-seed:2551"
+        - name: ROLE
+          value: "worker,api"
+        livenessProbe:
+          tcpSocket:
+            port: 2551
+        ports:
+        - containerPort: 2551
+          protocol: TCP
+        - containerPort: 8080
+          protocol: TCP

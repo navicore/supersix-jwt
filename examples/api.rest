@@ -1,0 +1,13 @@
+http://localhost:8080
+Authorization: blahblah
+Content-Type: application/json; charset=utf-8
+--
+
+--
+POST /supersix/observation
+{
+    "kind": "click",
+    "value": "https://some.site/somepath",
+    "who": "814a41d9-6778-4b14-bac6-2dec2d5f4085"
+}
+
