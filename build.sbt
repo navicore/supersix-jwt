@@ -1,4 +1,4 @@
-name := "IotServerDemo"
+name := "SuperSixJwt"
 
 fork := true
 javaOptions in test ++= Seq(
@@ -58,8 +58,8 @@ dependencyOverrides ++= Seq(
   "com.typesafe.akka" %% "akka-stream" % akkaVersion
 )
 
-mainClass in assembly := Some("onextent.iot.server.demo.Main")
-assemblyJarName in assembly := "IotServerDemo.jar"
+mainClass in assembly := Some("onextent.supersix.jwt.Main")
+assemblyJarName in assembly := "SuperSixJwt.jar"
 
 assemblyMergeStrategy in assembly := {
   case PathList("reference.conf") => MergeStrategy.concat
