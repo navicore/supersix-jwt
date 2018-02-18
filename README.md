@@ -1,17 +1,12 @@
-[![Build Status](https://travis-ci.org/navicore/supersix-http.svg?branch=master)](https://travis-ci.org/navicore/supersix-http)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/6be03bf590ad4a5b88c2598b4456cb4f)](https://www.codacy.com/app/navicore/supersix-http?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=navicore/supersix-http&amp;utm_campaign=Badge_Grade)
+[![Build Status](https://travis-ci.org/navicore/supersix-jwt.svg?branch=master)](https://travis-ci.org/navicore/supersix-jwt)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/6be03bf590ad4a5b88c2598b4456cb4f)](https://www.codacy.com/app/navicore/supersix-jwt?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=navicore/supersix-jwt&amp;utm_campaign=Badge_Grade)
 
-Supersix Demo App HTTP Ingest API
+Supersix JWT Service
 ===
 
-Receives json-formatted observations at an http endpoint and writes them to Kafka
+Maintains actors per key and issues appropriate JWTs with claims and TTL
 
 ### To Run
-
-* run Kafka with Docker
-```
-docker run -d --name my-kafka -p 2181:2181 -p 9092:9092 --env ADVERTISED_HOST=`ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'` --env ADVERTISED_PORT=9092 spotify/kafka
-```
 
 * run Cassandra with Docker
 ```
