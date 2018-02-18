@@ -25,6 +25,6 @@ object Main extends App with LazyLogging with HttpSupport with Directives {
             }
           }
         }
-    Http().bindAndHandle(route, "0.0.0.0", ingestPort)
+    Http().bindAndHandle(route, "0.0.0.0", apiPort)
 
 }

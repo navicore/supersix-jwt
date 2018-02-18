@@ -4,10 +4,17 @@ Content-Type: application/json; charset=utf-8
 --
 
 --
-POST /supersix/observation
+POST /jwt/key
 {
-    "kind": "click",
-    "value": "https://some.site/somepath",
-    "who": "814a41d9-6778-4b14-bac6-2dec2d5f4085"
+    "email": "ed@onextent.com",
+    "scopes": ["one:1"],
+    "name": "my test key"
+}
+
+--
+POST /jwt/jwt
+{
+  "clientId": "44687e50-d51b-4045-b5e9-ad1cbcc1a379",
+  "clientSecret": "2101f6d3-1411-4f8a-90d2-df3de25b6829"
 }
 

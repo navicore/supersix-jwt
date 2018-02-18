@@ -13,15 +13,15 @@ object KeyService extends Conf {
 
   def props()(implicit timeout: Timeout) =
     Props(new KeyService())
-  def shardName = "deviceService"
+  def shardName = "keyService"
 
   def SHARDS: Int = keyServiceShards
 
   val extractEntityId: ShardRegion.ExtractEntityId = {
-    case m: CreateKey => (m.key.clientId.toString, m)
-    case m: UpdateKey => (m.key.clientId.toString, m)
-    case m: DeleteKey => (m.clientId.toString, m)
-    case m: JwtRequest => (m.clientId.toString, m)
+    case m: CreateKey               => (m.key.clientId.toString, m)
+    case m: UpdateKey               => (m.key.clientId.toString, m)
+    case m: DeleteKey               => (m.clientId.toString, m)
+    case m: JwtRequest              => (m.clientId.toString, m)
   }
 
   def calcShardName(uuid: UUID): String = {
@@ -29,10 +29,10 @@ object KeyService extends Conf {
   }
 
   val extractShardId: ShardRegion.ExtractShardId = {
-    case m: CreateKey => calcShardName(m.key.clientId)
-    case m: UpdateKey => calcShardName(m.key.clientId)
-    case m: DeleteKey => calcShardName(m.clientId)
-    case m: JwtRequest => calcShardName(m.clientId)
+    case m: CreateKey               => calcShardName(m.key.clientId)
+    case m: UpdateKey               => calcShardName(m.key.clientId)
+    case m: DeleteKey               => calcShardName(m.clientId)
+    case m: JwtRequest              => calcShardName(m.clientId)
   }
 
 }
@@ -41,18 +41,25 @@ class KeyService()(implicit timeout: Timeout) extends Actor with LazyLogging {
 
   logger.debug(s"actor ${context.self.path} created")
 
-  def create(actorId: String, key: Key): Unit = {
+  def create(actorId: String, msg: CreateKey): Unit = {
+    logger.debug(s"(creating actor $actorId")
+    val key = msg.key
     // create a new actor for client ID and init by sending it its first msg
-    context.actorOf(KeyActor.props(key.clientId), actorId) ! CreateKey(key)
+    context.actorOf(KeyActor.props(key.clientId), actorId) ! msg
     sender() ! key
   }
 
+  def restart(actorId: String, jwtReq: JwtRequest): Unit = {
+    logger.debug(s"(re)starting actor $actorId")
+    context.actorOf(KeyActor.props(jwtReq.clientId), actorId) forward jwtReq
+  }
   override def receive: PartialFunction[Any, Unit] = {
 
-    case CreateKey(key) =>
+    case msg: CreateKey =>
+      val key = msg.key
       context
         .child(key.clientId.toString)
-        .fold(create(key.clientId.toString, key))(_ => {
+        .fold(create(key.clientId.toString, msg))(_ => {
           sender() ! KeyAlreadyExists(key.clientId)
         })
 
@@ -63,10 +70,9 @@ class KeyService()(implicit timeout: Timeout) extends Actor with LazyLogging {
         .fold(notFound())(_ forward msg)
 
     case jwtReq: JwtRequest =>
-      def notFound(): Unit = sender() ! KeyNotFound(jwtReq.clientId)
       context
         .child(jwtReq.clientId.toString)
-        .fold(notFound())(_ forward jwtReq)
+        .fold(restart(jwtReq.clientId.toString, jwtReq))(_ forward jwtReq)
 
   }
 

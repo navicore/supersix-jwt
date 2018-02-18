@@ -3,6 +3,12 @@ package onextent.supersix.jwt.models
 import java.time.{ZoneOffset, ZonedDateTime}
 import java.util.UUID
 
+final case class KeySecrets(
+    clientId: UUID,
+    verifySecret: UUID = UUID.randomUUID(),
+    approveSecret: UUID = UUID.randomUUID()
+)
+
 final case class Key(name: String,
                      email: String,
                      scopes: List[String],
@@ -20,13 +26,11 @@ object MkKey {
 }
 
 final case class KeyRequest(name: String, email: String, scopes: List[String])
-final case class CreateKey(key: Key)
+final case class CreateKey(key: Key, secrets: KeySecrets)
 final case class UpdateKey(key: Key)
 final case class DeleteKey(clientId: UUID)
 final case class KeyAlreadyExists(clientId: UUID)
 final case class KeyNotFound(clientId: UUID)
 
-
 final case class Jwt(json: String)
 final case class JwtRequest(clientId: UUID, clientSecret: UUID)
-

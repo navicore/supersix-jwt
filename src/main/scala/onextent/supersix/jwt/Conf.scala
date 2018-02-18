@@ -58,6 +58,6 @@ trait Conf {
   val akkaSeed0: String = conf.getString("main.akkaSeed0")
   val akkaSeed1: String = conf.getString("main.akkaSeed1")
 
-  val keyServiceShards: Int = conf.getInt("main.deviceServiceShards")
+  val keyServiceShards: Int = conf.getInt("main.keyServiceShards")
 
 }

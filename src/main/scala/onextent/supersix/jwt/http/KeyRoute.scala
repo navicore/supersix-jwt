@@ -21,11 +21,13 @@ object KeyRoute
       post {
         decodeRequest {
           entity(as[KeyRequest]) { keyReq =>
-            val f = service ask CreateKey(MkKey(keyReq))
+            val key = MkKey(keyReq)
+            val f = service ask CreateKey(key, KeySecrets(key.clientId))
             onSuccess(f) { (r: Any) =>
               {
                 r match {
                   case key: Key =>
+                    // don't show the verify or approve secrets
                     complete(
                       HttpEntity(ContentTypes.`application/json`,
                                  key.toJson.prettyPrint))
@@ -48,18 +50,18 @@ object KeyRoute
           entity(as[JwtRequest]) { jwtReq =>
             val f = service ask jwtReq
             onSuccess(f) { (r: Any) =>
-            {
-              r match {
-                case jwt: Jwt =>
-                  complete(
-                    HttpEntity(ContentTypes.`application/json`,
-                      jwt.toJson.prettyPrint))
-                case KeyNotFound(clientId) =>
-                  complete(StatusCodes.Conflict, s"$clientId already exists")
-                case _ =>
-                  complete(StatusCodes.NotFound)
+              {
+                r match {
+                  case jwt: String =>
+                    complete(
+                      HttpEntity(ContentTypes.`application/json`,
+                                 jwt))
+                  case KeyNotFound(clientId) =>
+                    complete(StatusCodes.Conflict, s"$clientId already exists")
+                  case _ =>
+                    complete(StatusCodes.NotFound)
+                }
               }
-            }
             }
           }
         }
@@ -72,6 +74,6 @@ object KeyRoute
 
   def apply(service: ActorRef): Route =
     create(service) ~
-    issue(service)
+      issue(service)
 
 }

@@ -7,7 +7,7 @@ import java.util.Date
 import akka.serialization.SerializerWithStringManifest
 import com.sksamuel.avro4s._
 import com.typesafe.scalalogging.LazyLogging
-import onextent.supersix.jwt.models.{Key, KeyRequest}
+import onextent.supersix.jwt.models._
 import org.apache.avro.Schema
 import org.apache.avro.Schema.Field
 
@@ -79,5 +79,73 @@ object AvroSupport extends JsonSupport with LazyLogging {
           s"Unable to handle manifest $manifest, required $maniFest")
     }
   }
-
+  class KeySecretsSerializer extends AvroSerializer[KeySecrets] {
+    override def identifier: Int = 100001
+    final val maniFest = classOf[KeySecrets].getName
+    override def toBinary(o: AnyRef): Array[Byte] = {
+      val output = new ByteArrayOutputStream
+      val avro = AvroOutputStream.binary[KeySecrets](output)
+      avro.write(o.asInstanceOf[KeySecrets])
+      avro.close()
+      output.toByteArray
+    }
+    override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef = {
+      implicit val fromRec: FromRecord[KeySecrets] =
+        FromRecord[KeySecrets]
+      if (maniFest == manifest) {
+        val is = AvroInputStream.binary[KeySecrets](bytes)
+        val events = is.iterator.toList
+        is.close()
+        events.head
+      } else
+        throw new IllegalArgumentException(
+          s"Unable to handle manifest $manifest, required $maniFest")
+    }
+  }
+  class CreateKeySerializer extends AvroSerializer[CreateKey] {
+    override def identifier: Int = 100001
+    final val maniFest = classOf[CreateKey].getName
+    override def toBinary(o: AnyRef): Array[Byte] = {
+      val output = new ByteArrayOutputStream
+      val avro = AvroOutputStream.binary[CreateKey](output)
+      avro.write(o.asInstanceOf[CreateKey])
+      avro.close()
+      output.toByteArray
+    }
+    override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef = {
+      implicit val fromRec: FromRecord[CreateKey] =
+        FromRecord[CreateKey]
+      if (maniFest == manifest) {
+        val is = AvroInputStream.binary[CreateKey](bytes)
+        val events = is.iterator.toList
+        is.close()
+        events.head
+      } else
+        throw new IllegalArgumentException(
+          s"Unable to handle manifest $manifest, required $maniFest")
+    }
+  }
+  class JwtRequestSerializer extends AvroSerializer[JwtRequest] {
+    override def identifier: Int = 100001
+    final val maniFest = classOf[JwtRequest].getName
+    override def toBinary(o: AnyRef): Array[Byte] = {
+      val output = new ByteArrayOutputStream
+      val avro = AvroOutputStream.binary[JwtRequest](output)
+      avro.write(o.asInstanceOf[JwtRequest])
+      avro.close()
+      output.toByteArray
+    }
+    override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef = {
+      implicit val fromRec: FromRecord[JwtRequest] =
+        FromRecord[JwtRequest]
+      if (maniFest == manifest) {
+        val is = AvroInputStream.binary[JwtRequest](bytes)
+        val events = is.iterator.toList
+        is.close()
+        events.head
+      } else
+        throw new IllegalArgumentException(
+          s"Unable to handle manifest $manifest, required $maniFest")
+    }
+  }
 }
