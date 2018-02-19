@@ -2,18 +2,19 @@ package onextent.supersix.jwt.actors.key
 
 import akka.actor.{Actor, ActorRef, Props}
 import akka.cluster.sharding.{ClusterSharding, ClusterShardingSettings}
+import onextent.supersix.jwt.RsaKeys.KeyInfo
 import onextent.supersix.jwt.http.functions.HttpSupport
 
 object ShardedKeyService {
-  def props() = Props(new ShardedKeyService())
+  def props(keyInfo: KeyInfo) = Props(new ShardedKeyService(keyInfo))
   def name = "shardedKeyService"
 }
 
-class ShardedKeyService() extends Actor with HttpSupport {
+class ShardedKeyService(keyInfo: KeyInfo) extends Actor with HttpSupport {
 
   ClusterSharding(context.system).start(
     KeyService.shardName,
-    KeyService.props(),
+    KeyService.props(keyInfo),
     ClusterShardingSettings(context.system),
     KeyService.extractEntityId,
     KeyService.extractShardId

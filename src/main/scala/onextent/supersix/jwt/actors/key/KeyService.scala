@@ -7,12 +7,13 @@ import akka.cluster.sharding.ShardRegion
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
 import onextent.supersix.jwt.Conf
+import onextent.supersix.jwt.RsaKeys.KeyInfo
 import onextent.supersix.jwt.models._
 
 object KeyService extends Conf {
 
-  def props()(implicit timeout: Timeout) =
-    Props(new KeyService())
+  def props(keyInfo: KeyInfo)(implicit timeout: Timeout) =
+    Props(new KeyService(keyInfo))
   def shardName = "keyService"
 
   def SHARDS: Int = keyServiceShards
@@ -37,7 +38,7 @@ object KeyService extends Conf {
 
 }
 
-class KeyService()(implicit timeout: Timeout) extends Actor with LazyLogging {
+class KeyService(keyInfo: KeyInfo)(implicit timeout: Timeout) extends Actor with LazyLogging {
 
   logger.debug(s"actor ${context.self.path} created")
 
@@ -45,13 +46,13 @@ class KeyService()(implicit timeout: Timeout) extends Actor with LazyLogging {
     logger.debug(s"(creating actor $actorId")
     val key = msg.key
     // create a new actor for client ID and init by sending it its first msg
-    context.actorOf(KeyActor.props(key.clientId), actorId) ! msg
+    context.actorOf(KeyActor.props(key.clientId, keyInfo), actorId) ! msg
     sender() ! key
   }
 
   def restart(actorId: String, jwtReq: JwtRequest): Unit = {
     logger.debug(s"(re)starting actor $actorId")
-    context.actorOf(KeyActor.props(jwtReq.clientId), actorId) forward jwtReq
+    context.actorOf(KeyActor.props(jwtReq.clientId, keyInfo), actorId) forward jwtReq
   }
   override def receive: PartialFunction[Any, Unit] = {
 

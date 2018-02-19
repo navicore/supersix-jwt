@@ -7,14 +7,15 @@ import akka.persistence.{PersistentActor, RecoveryCompleted}
 import akka.util.Timeout
 import com.typesafe.scalalogging.LazyLogging
 import onextent.supersix.jwt.Conf
+import onextent.supersix.jwt.RsaKeys.KeyInfo
 import onextent.supersix.jwt.models._
 
 object KeyActor {
-  def props(clientId: UUID)(implicit timeout: Timeout) =
-    Props(new KeyActor(clientId))
+  def props(clientId: UUID, keyInfo: KeyInfo)(implicit timeout: Timeout) =
+    Props(new KeyActor(clientId, keyInfo))
 }
 
-class KeyActor(clientId: UUID) extends Actor with LazyLogging with Conf with PersistentActor {
+class KeyActor(clientId: UUID, keyInfo: KeyInfo) extends Actor with LazyLogging with Conf with PersistentActor {
 
   logger.debug(s"key actor for '$clientId' created")
 
