@@ -3,14 +3,14 @@ package onextent.supersix.jwt
 import akka.actor.ActorRef
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Directives
+import akka.pattern.ask
 import ch.megard.akka.http.cors.scaladsl.CorsDirectives._
 import com.typesafe.scalalogging.LazyLogging
 import onextent.supersix.jwt.Conf._
+import onextent.supersix.jwt.RsaKeys.KeyInfo
 import onextent.supersix.jwt.actors.key.{RsaService, ShardedKeyService}
 import onextent.supersix.jwt.http.KeyRoute
 import onextent.supersix.jwt.http.functions.HttpSupport
-import akka.pattern.ask
-import onextent.supersix.jwt.RsaKeys.KeyInfo
 
 object Main extends App with LazyLogging with HttpSupport with Directives {
 
@@ -24,7 +24,7 @@ object Main extends App with LazyLogging with HttpSupport with Directives {
       logger.info(s"got key info: $keyInfo")
       val keyService: ActorRef =
         actorSystem.actorOf(ShardedKeyService.props(keyInfo),
-          ShardedKeyService.name)
+                            ShardedKeyService.name)
       val route =
         HealthCheck ~
           logRequest(urlpath) {
